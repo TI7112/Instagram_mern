@@ -1,0 +1,40 @@
+<%- include('../../components/header.ejs') %>
+
+    <div class="bg-zinc-900 w-full h-screen">
+        <div class="flex justify-center py-20">
+            <img class="w-48" src="./assets/static/logo.png" alt="">
+        </div>
+        <form action="/auth/login" method="post" class="flex flex-col items-center text-sm gap-3">
+            <% if(success.length> 0){ %>
+            <p class="bg-green-300 w-72 p-1"><%= success %></p>
+            <% }else if(fail.length> 0){ %>
+            <p class="bg-red-300 w-72 p-1"><%= fail %></p>
+            <% } %>
+            <input value="anuj7112" required type="text" name="username" placeholder="username, email, phone"
+                class="outline-none border-zinc-600 px-2 py-2 focus:border-zinc-300 text-zinc-300 rounded w-72 border-2 bg-zinc-800">
+            <input value="Ayush@123" required type="password" name="password" placeholder="password"
+                class="outline-none border-zinc-600 px-2 py-2 focus:border-zinc-300 text-zinc-300 rounded w-72 border-2 bg-zinc-800">
+            <button type="submit"
+                class="bg-sky-600 w-72 py-1 text-zinc-300 hover:bg-sky-700 font-semibold ">Login</button>
+            <a class="text-sky-600 mt-2 hover:underline" href="">forget password</a>
+            <p class="text-zinc-300 mt-4">Dont have an account? <a href="/register"
+                    class="text-sky-600 hover:underline">Sign up</a></p>
+        </form>
+        <div class="flex text-zinc-300 pt-12 flex-col items-center text-sm gap-3">
+            <p>Get the app.</p>
+            <div class="flex pt-2 gap-2 justify-center">
+                <a href="">
+                    <img class="w-32 h-10" src="./assets/static/google-play.png" alt="">
+                </a>
+                <a href="">
+                    <img class="w-32 h-10" src="./assets/static/microsoft.png" alt="">
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // $('form').submit()
+    </script>
+
+    <%- include('../../components/footer.ejs') %>

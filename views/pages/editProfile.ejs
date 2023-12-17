@@ -1,0 +1,29 @@
+<%- include('../components/header.ejs') %>
+<div class="w-full min-h-screen bg-zinc-900 text-white py-5">
+    <div class="flex justify-between items-center px-4">
+      <a class="text-sm text-blue-500" href="/profile"><i class="ri-arrow-left-s-line"></i> profile</a>
+      <h2 class="leading-none text-sm">Edit Profile</h2>
+      <a class="text-sm" href="/feed"><i class="ri-home-line"></i> home</a>
+    </div>
+    <div class="flex flex-col items-center gap-2 mt-10">
+      <div class="relative image w-40 h-40 justify-center flex  border-2 border-zinc-600 bg-sky-100 rounded-full overflow-hidden">
+        <img class="object-cover" src="./assets/uploads/profile/<%= user.profile %>" alt="">
+        <label for="profile" class="absolute bottom-0 bg-[rgba(0,0,0,0.8)] w-full text-center pb-2 pt-1">Change</label>
+    </div>
+    <form class="hidden" method="post" action="/update-profile-dp" enctype="multipart/form-data">
+        <input type="file" id="profile" onchange="this.form.submit()" name="profile">
+    </form>
+    </div>
+    <div class="gap-5 px-4 mt-10">
+      <h3 class="text-sm px-2 text-zinc-300 leading-none">Edit Account Details</h3>
+      <hr class="opacity-30 my-3">
+      <form class="w-full" action="/update-profile-detail" method="post">
+        <input value="<%= user.username %>" class="px-3 mt-2 py-2 outline-none focus:border-zinc-600 border-2 border-zinc-800 rounded-md block w-full bg-zinc-900" type="text" placeholder="username" name="username">
+        <input value="<%= user.name %>" class="px-3 mt-2 py-2 outline-none focus:border-zinc-600 border-2 border-zinc-800 rounded-md block w-full bg-zinc-900" type="text" placeholder="name" name="name">
+        <input value="<%= user.phone %>" class="px-3 mt-2 py-2 outline-none focus:border-zinc-600 border-2 border-zinc-800 rounded-md block w-full bg-zinc-900" type="text" placeholder="phone" name="phone">
+        <textarea class="px-3 mt-2 outline-none focus:border-zinc-600 py-2 border-2 border-zinc-800 rounded-md block w-full bg-zinc-900 resize-none" placeholder="Bio" name="bio"><%= user.bio %></textarea>
+        <input class="w-full bg-blue-500 px-3 py-3 rounded-md mt-2" type="submit" value="Update Details">
+      </form>
+    </div>
+  </div>
+  <%- include('../components/footer.ejs') %>
