@@ -2,20 +2,25 @@ const mongoose = require('mongoose');
 
 const postScema = new mongoose.Schema({
     caption: String,
-    user:{
+    user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:'user'
+        ref: 'user'
     },
     image: String,
-    like:[
+    like: [
         {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:'user'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user'
         }
     ],
-    comment:Array,
+    comment: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'comment'
+        },
+    ],
 }, {
     timestamps: true
 })
 
-exports.Post = mongoose.model("post" , postScema);
+exports.Post = mongoose.model("post", postScema);

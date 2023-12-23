@@ -2,10 +2,13 @@ const express = require('express');
 const { User } = require('../model/User.model');
 const { isAuthenticated } = require('../config/middleware');
 const { v4: uuidv4 } = require('uuid');
-const { profileupload, postupload } = require('../config/multer');
+const { profileupload, postupload, storyupload } = require('../config/multer');
 const { unlinkSync } = require('fs');
 const { Post } = require('../model/Post.model');
+const { Comment } = require('../model/Comment.model');
 const bcrypt = require('bcrypt');
+const { Story } = require('../model/Story.model');
+const path = require('path');
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -34,7 +37,18 @@ router.get('/logout', (req, res) => {
 router.get('/feed', isAuthenticated, async (req, res) => {
     const user = await User.findById(req.session.user).select('-password')
     const post = await Post.find().populate("user")
-    res.render('pages/home', { footer: true, user, post });
+    const storyData = await Story.find().populate("user")
+    const story = []
+
+    storyData.forEach(element => {
+        if(user.following.includes(element.user._id)){
+            story.push(element)
+        }
+    });
+
+    // return res.send(story)
+
+    res.render('pages/home', { footer: true, user, post , story});
 })
 
 router.get('/search', isAuthenticated, async (req, res) => {
@@ -45,6 +59,11 @@ router.get('/search', isAuthenticated, async (req, res) => {
 router.get('/upload', isAuthenticated, async (req, res) => {
     const user = await User.findById(req.session.user).select('-password')
     res.render('pages/upload', { footer: true, user });
+})
+
+router.get('/upload-story', isAuthenticated, async (req, res) => {
+    const user = await User.findById(req.session.user).select('-password')
+    res.render('pages/uploadStory', { footer: true, user });
 })
 
 router.get('/profile', isAuthenticated, async (req, res) => {
@@ -167,6 +186,48 @@ router.post('/upload-post', isAuthenticated, postupload.single('image'), async (
     return res.redirect('/feed')
 })
 
+router.post('/upload-story', isAuthenticated, storyupload.single('image'), async (req, res) => {
+    const user = await User.findById(req.session.user).select('-password')
+    const story = new Story();
+
+    story.caption = req.body.caption
+    story.image = req.file.filename
+    story.user = user.id
+    story.status = 'active'
+    
+    console.log(path.extname(req.file.filename).toLowerCase());
+
+    if(path.extname(req.file.filename).toLowerCase() == ".jpeg" || 
+    path.extname(req.file.filename).toLowerCase() == ".jpg" || 
+    path.extname(req.file.filename).toLowerCase() == ".png" || 
+    path.extname(req.file.filename).toLowerCase() == ".tiff" || 
+    path.extname(req.file.filename).toLowerCase() == ".gif") {
+        story.type = 'image'
+    }
+    else if(path.extname(req.file.filename).toLowerCase() == ".mp4" || 
+    path.extname(req.file.filename).toLowerCase() == ".m4a"|| 
+    path.extname(req.file.filename).toLowerCase() == ".f4v" || 
+    path.extname(req.file.filename).toLowerCase() == ".m4b" || 
+    path.extname(req.file.filename).toLowerCase() == ".mov") {
+        story.type = "video"
+    }
+
+
+    await story.save()
+    return res.redirect('/feed')
+})
+
+router.post('/get-story', isAuthenticated, async (req, res) => {
+    const user = await User.findById(req.session.user).select('-password')
+    const story = await Story.findById(req.body.story_id)
+
+    if(!story.view.includes(user._id)){
+        story.view.push(user._id)
+        story.save();
+    }
+    return res.send(story)
+})
+
 
 router.post('/like-post', isAuthenticated, async (req, res) => {
     const user = await User.findById(req.session.user);
@@ -183,6 +244,49 @@ router.post('/like-post', isAuthenticated, async (req, res) => {
     post.save()
 
     return res.send(data);
+})
+
+router.post('/getcomments', isAuthenticated, async (req, res) => {
+    const user = await User.findById(req.session.user).select('-password');
+    const post = await Post.findById(req.body.post_id);
+    const comment = await Comment.find({post:req.body.post_id}).populate('user');
+
+
+    return res.send({comment , post , userid:user._id});
+})
+
+router.post('/comment', isAuthenticated, async (req, res) => {
+    const user = await User.findById(req.session.user).select('-password');
+    const post = await Post.findById(req.body.post_id); 
+
+    const comment = new Comment()
+    
+    comment.post = post._id
+    comment.user = user._id
+    comment.comment = req.body.comment
+    comment.save()
+    
+    return res.send('success')
+
+})
+
+router.post('/likeComment', isAuthenticated, async (req, res) => {
+    const user = await User.findById(req.session.user).select('-password');
+    const comment = await Comment.findById(req.body.comment_id);
+    let data = "";
+
+    if(comment.like.includes(user._id)){
+        comment.like.pop(user._id)
+        data = "unliked"
+    }
+    else{
+        comment.like.push(user._id)
+        data = "liked"
+    }
+    
+    comment.save();
+    return res.send(data)
+
 })
 
 
